@@ -1,0 +1,112 @@
+curl -X PUT -d "2880,PG0216,2017-09-14 14:10:00+03,2017-09-14 14:10:00,2017-09-14 15:15:00+03,2017-09-14 16:15:00,01:05:00,DME,Домодедово,Москва,KUF,Курумоч,Самара,Scheduled,763,,,,," -v http://localhost:8080/v1/bf6d5077414a0d8bacf04f7190ba95a3
+
+curl -X GET -v http://localhost:8080/v1/bf6d5077414a0d8bacf04f7190ba95a3
+
+curl -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" -X PUT -d "2880,PG0216,2017-09-14 14:10:00+03,2017-09-14 14:10:00,2017-09-14 15:15:00+03,2017-09-14 16:15:00,01:05:00,DME,Домодедово,Москва,KUF,Курумоч,Самара,Scheduled,763,,,,," -v http://localhost:8080/v1/bf6d5077414a0d8bacf04f7190ba95a3
+
+curl -H "Content-Type: application/x-www-form-urlencoded; charset=utf-8" -X PUT -d "2880,PG0216,2017-09-14 14:10:00+03,2017-09-14 14:10:00,2017-09-14 15:15:00+03,2017-09-14 16:15:00,01:05:00,DME,Домодедово,Москва,KUF,Курумоч,Самара,Scheduled,763,,,,," -v http://localhost:48855/v1/bf6d5077414a0d8bacf04f7190ba95a3
+
+
+-H "Content-Type: application/x-www-form-urlencoded; charset=utf-8"
+
+GIGABYTE GA-A320M-S2H V2 vs GIGABYTE GA-A320M-H
+
+http://localhost:8080/v1/tsoukalos
+
+
+go run /usr/local/go/src/crypto/tls/generate_cert.go --ecdsa-curve P256 --host localhost
+
+C:\Users\itspecialist\go\pkg\mod\golang.org\x>
+
+curl --tlsv1.3 --tls-max 1.3 --cacert cert.pem https://localhost:4000/
+--tlsv1.2 --tls-max 1.2
+
+C:\Program Files\curl-7.85.0_5-win64-mingw\bin\curl --tlsv1.3 --tls-max 1.3 --cacert cert.pem https://localhost:4000/
+
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/ -exec POST -file TN0504204-368-201008.json
+
+localhost:4000/docs/TN0504204-368-201008.json
+
+
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec POST -file TN0504204-368-201008.json
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1/TN0504204-368-201008.json -exec GET
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1/ -exec GET -key TN0504204-368-201008.json
+
+localhost:4000/docs/v1/TN0504204-368-201008.json
+
+
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec POST -file TN0504204-368-201008.json
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec GET -key TN0504204-368-201008.json
+
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec POST -file TN0504204-369-201008.json
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec DELETE -key TN0504204-368-201008.json
+
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec GET -key TN0504204-368-201008.json
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec GET -key TN0504204-369-201008.json
+
+go run auth-client.go -user joe -pass 1234 -addr localhost:4000/docs/v1 -exec GET 
+
+
+CREATE DATABASE kvs WITH OWNER test ENCODING utf8;
+
+https://localhost:4000/docs/v1/TN0504204-368-201008.json
+
+
+CREATE OR REPLACE FUNCTION unescape(text, text) RETURNS text AS $body$
+	DECLARE result text;
+        BEGIN
+		EXECUTE format('SELECT U&%s UESCAPE %s', 
+                         quote_literal(replace($1, '%','^')),
+                         quote_literal($2)) INTO result;
+		RETURN result;
+        END;
+$body$ LANGUAGE plpgsql;
+
+
+
+
+select unescape(value,'^') from transactions;
+
+
+2022-10-26
+
+1) создать таблицу docs
+
+CREATE TABLE docs (
+	sequence	BIGSERIAL PRIMARY KEY,
+	key		TEXT,
+	value		JSON
+	  ); 
+
+2) возможно, что вместо BIGSERIAL можно применить IDENTITY
+
+CREATE TABLE docs (
+	sequence	bigint primary key generated always as identity,
+	key		text,
+	value		json
+	  ); 
+
+
+3) создать таблицу docs_main (основные поля документа)
+
+CREATE TABLE docs_main (
+	id		bigint primary key generated always as identity,
+	key		text,
+	name		text,
+	value		text
+	  ); 
+
+
+4) создать таблицу docs_tables (поля документа в табличных частях, табличных частей в одном документе может быть несколько)
+
+CREATE TABLE docs_tabs (
+	id		bigint primary key generated always as identity,
+	doc_id		bigint NOT NULL,
+	tab_id		bigint NOT NULL,
+	row_id		bigint NOT NULL,
+	name		text,
+	value		text
+	  ); 
+
+ 
+9) создать триггер на таблице docs, который парсит JSON из таблицы docs и перекладывает данные в docs_main и docs_tabs (вызывает процедуру парсинга)
